@@ -1,0 +1,67 @@
+{
+  "name": "react-overlay-template",
+  "version": "0.1.1",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.37",
+    "@types/react-addons-css-transition-group": "^15.0.7",
+    "@types/react-dom": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.5.0",
+    "@typescript-eslint/parser": "^5.5.0",
+    "axios": "^0.24.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "local-storage": "^2.0.0",
+    "node-sass": "^6.0.1",
+    "prettier": "^2.5.0",
+    "react": "^17.0.2",
+    "react-addons-css-transition-group": "^15.6.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.0.2",
+    "react-scripts": "4.0.3",
+    "react-spring": "^9.3.2",
+    "rxjs": "^7.4.0",
+    "socket.io-client": "^4.4.0",
+    "typescript": "^4.1.2",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
+    "lint:all": "eslint ./ --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "yarn lint -- --fix",
+    "bump": "yarn version --patch",
+    "bump:minor": "yarn version --minor",
+    "bump:major": "yarn version --major"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
