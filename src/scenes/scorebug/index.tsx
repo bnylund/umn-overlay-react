@@ -3,9 +3,9 @@ import { useSpring, animated } from 'react-spring'
 import { useServices } from '../../hooks/services'
 
 import { RocketLeague } from '../../types/Live'
-import style from './test-scene.module.scss'
+import style from './scorebug.module.scss'
 
-export const TestScene = (props: any) => {
+export const Scorebug = (props: any) => {
   const [animation, setAnimation] = useState(0) // 0: don't animate, 1: animate in, 2: animate out
   const [show, setShow] = useState(false) // Show by default?
   const { websocket, events } = useServices()

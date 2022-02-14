@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
-import { TestScene } from './scenes'
+import { Scorebug } from './scenes'
 import style from './overlay.module.scss'
 import { useServices } from './hooks/services'
 
@@ -18,8 +18,8 @@ export const Overlay: React.FC<any> = (props: any) => {
             .then((inf) => {})
             .catch((err: Error) => {
               console.log(err)
+              navigate('/login', { replace: true })
               if (err.message === 'Auth failure') {
-                navigate('/login', { replace: true })
               }
             })
         })
@@ -44,7 +44,7 @@ export const Overlay: React.FC<any> = (props: any) => {
 
   return (
     <div className={style.overlay}>
-      <TestScene />
+      <Scorebug />
     </div>
   )
 }
