@@ -1,0 +1,57 @@
+.goal {
+  height: 142px;
+  width: 270px;
+  position: absolute;
+  top: 56px;
+  left: 0px;
+  background-color: #7a0019;
+  box-shadow: inset 0px 0px 25px #fc3; 
+  color: white;
+  overflow: hidden;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+
+  & > img {
+    opacity: 0.5;
+    height: 120px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    transform: translate(-50%, -50%);
+  }
+
+  & > p {
+    text-shadow: 1px 1px 10px black;
+    letter-spacing: 0;
+    font-weight: 700;
+    font-size: 60px;
+    z-index: 5;
+    color: #ffcc33;
+    font-family: exo;
+    transition: letter-spacing 0.5s;
+  }
+
+  &[data-transition="true"] > p {
+    animation-duration: 6s;
+    animation-name: goal;
+    animation-timing-function: linear();
+  }
+}
+
+@keyframes goal {
+  from {
+    letter-spacing: 100px;
+  }
+
+  15% {
+    letter-spacing: 10px; 
+  }
+
+  to {
+    letter-spacing: -4px;
+  }
+}

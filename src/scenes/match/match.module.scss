@@ -1,0 +1,198 @@
+.match {
+  width: 100vw;
+  height: 100vh;
+}
+
+.boost {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 260px;
+  height: 260px;
+  border: none;
+  z-index: 9;
+  background-color: #0000;
+  margin: 0px auto;
+  overflow: hidden;
+  transform: scale(0.8);
+  transform-origin: 0 0;
+
+  p {
+    color: white;
+    font-size: 40px;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  svg > circle {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+}
+
+.scorebug {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  box-shadow: 2px 2px 10px black;
+  border: 2px solid black;
+  line-height: 1;
+  transition: top 0.5s;
+  width: 270px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 142px;
+
+  .clock {
+    justify-content: center;
+    align-content: center;
+    background-color: black;
+    //margin-bottom: -55px;
+    transition: margin-bottom 1s;
+
+    & > p {
+      color: white;
+      //font-family: 'Montserrat', sans-serif;
+      letter-spacing: 2px;
+      font-family: exo;
+      font-weight: 600;
+      font-size: 36px;
+      margin: 0;
+      padding: 10px 0;
+      background-color: black;
+      text-align: center;
+    }
+  }
+
+  .teams {
+    z-index: 5;
+    overflow: hidden;
+
+    & > div:not(:last-child) {
+      border-bottom: 1px solid #0005;
+    }
+
+    & > div:not(:first-child) {
+      border-top: 1px solid #0005;
+    }
+  }
+
+  .team {
+    background-color: black;
+    height: 70px;
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    overflow: hidden;
+
+    transition: transform 0.6s;
+
+    &[data-goal="1"] {
+      transform: translateY(-71px);
+    }
+
+    &[data-goal="2"] {
+      transform: translateY(70px);
+    }
+
+    // Team name, series score
+    & > div:first-child {
+      width: 190px;
+
+      background-color: #7a0019;
+      color: #ffcc33;
+
+      & > p {
+        overflow: hidden;
+        text-overflow: clip;
+        max-width: 165px;
+        font-family: match;
+        font-size: 40px;
+        margin: 0;
+        margin-left: 10px;
+        padding-top: 5px;
+        text-overflow: clip;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      border-right: 4px solid #000;
+      border-bottom-right-radius: 30px;
+    }
+
+    // Game score, logo
+    & > .score {
+      width: 80px;
+      background-color: #ffcc33;
+      color: #7a0019;
+      border-top-left-radius: 30px;
+      border-left: 4px solid #000;
+
+      & > p {
+        font-family: match;
+        font-size: 60px;
+        font-weight: 600;
+      }
+
+      & > img {
+        position: relative;
+        opacity: .3;
+        z-index: 2;
+        margin-left: -36px;
+        height: 100%;
+        object-fit: contain;
+        width: 115px;
+      }
+    }
+  }
+
+  .series {
+    height: 15px;
+    display: flex;
+    flex-direction: row;
+    margin-left: 10px;
+    margin-top: 5px;
+
+    & > div {
+      width: 25px;
+      height: 5px;
+    }
+
+    & > div[data-active="true"] {
+      background-color: yellow;
+      box-shadow: 0 0 5px 2px yellow;
+      margin-right: 5px;
+    }
+
+    & > div[data-active="false"] {
+      margin-right: 5px;
+      background-color: rgb(126, 98, 6);
+      box-shadow: 0px 0px 15px rgb(212, 163, 3) inset;
+    }
+  }
+
+  .goalspeed {
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    transition: margin-top 1s;
+
+    &[data-replay="true"] {
+      margin-top: 0px;
+    }
+
+    &[data-replay="false"] {
+      margin-top: -42px;
+    }
+
+    & > p {
+      color: white;
+      font-family: match;
+      font-size: 26px;
+      margin: 0;
+      padding: 8px 0;
+      background-color:black;
+      text-align: center;
+    }
+  }
+}

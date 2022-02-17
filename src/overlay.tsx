@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import React, { useEffect } from 'react'
-import { Scorebug } from './scenes'
+import { Match } from './scenes'
 import style from './overlay.module.scss'
 import { useServices } from './hooks/services'
 
@@ -44,7 +44,7 @@ export const Overlay: React.FC<any> = (props: any) => {
 
   return (
     <div className={style.overlay}>
-      <Scorebug />
+      <Match />
     </div>
   )
 }

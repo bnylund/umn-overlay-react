@@ -3,9 +3,11 @@ import { useSpring, animated } from 'react-spring'
 import { useServices } from '../../hooks/services'
 
 import { RocketLeague } from '../../types/Live'
-import style from './scorebug.module.scss'
+import { Boost } from './boost'
+import style from './match.module.scss'
+import { Scorebug } from './scorebug'
 
-export const Scorebug = (props: any) => {
+export const Match = (props: any) => {
   const [animation, setAnimation] = useState(0) // 0: don't animate, 1: animate in, 2: animate out
   const [show, setShow] = useState(false) // Show by default?
   const { websocket, events } = useServices()
@@ -16,7 +18,7 @@ export const Scorebug = (props: any) => {
   useEffect(() => {
     // Manual show/hide from control board
     events.on('scene:visibility', (name: string, state: boolean, transition: boolean = false) => {
-      if (name === 'TestScene') {
+      if (name === 'Match') {
         // transition in/out accordingly
         if (transition) {
           setShow(true)
@@ -31,24 +33,29 @@ export const Scorebug = (props: any) => {
     // If no datafeed is present, no data can be supplied to this scene, but the CB can
     // still display an option to show/hide this scene. If you don't call registerScene,
     // the scene can still be used as intended, but it won't show up in the CB.
-    websocket.registerScene('Test Scene', {
-      format: {
-        match_title: 'string',
-        background: 'string',
-        show_teams: 'boolean',
-        teams: [
+    websocket.registerScene('Match', {
+      data: {
+        cams: [
           {
             name: 'string',
-            series: 'number',
-            players: [
-              {
-                name: 'string',
-                score: 'number',
-              },
-            ],
+            url: 'string',
           },
         ],
       },
+      buttons: [
+        {
+          name: 'Show Player Cameras',
+          handler: () => {
+            // Show player cams
+          },
+        },
+        {
+          name: 'Hide Player Cameras',
+          handler: () => {
+            // Hide player cams
+          },
+        },
+      ],
       // Data from CB comes in here
       handler: (data: any) => {},
     })
@@ -78,9 +85,12 @@ export const Scorebug = (props: any) => {
     },
   })
 
+  //return <animated.div hidden={!show} style={animProps} className={style.testScene}></animated.div>
+
   return (
-    <animated.div hidden={!show} style={animProps} className={style.testScene}>
-      <p>Test Scene {game ? game.time : ''}</p>
-    </animated.div>
+    <div className={style.match}>
+      <Scorebug />
+      <Boost />
+    </div>
   )
 }

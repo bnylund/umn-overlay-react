@@ -21,7 +21,7 @@ export namespace Base {
   }
 
   export interface Match {
-    game?: Base.Game
+    game?: RocketLeague.Game
     bestOf: number
     teamSize: number
     hasWinner: boolean
@@ -32,8 +32,8 @@ export namespace Base {
   }
 
   export interface Colors {
-    primary_color: string
-    secondary_color: string
+    primary: string
+    secondary: string
   }
 }
 

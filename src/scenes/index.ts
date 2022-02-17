@@ -1,1 +1,1 @@
-export * from './scorebug'
+export * from './match'

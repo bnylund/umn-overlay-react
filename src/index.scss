@@ -7,3 +7,13 @@ body, html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+@font-face {
+  font-family: match;
+  src: url(./fonts/building.ttf);
+}
+
+@font-face {
+  font-family: exo;
+  src: url(./fonts/Exo-VariableFont_wght.ttf);
+}

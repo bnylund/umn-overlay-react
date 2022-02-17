@@ -40,7 +40,7 @@ export class AuthService {
   login(email: string, password: string): Promise<User> {
     return axios({
       method: 'post',
-      url: `${process.env.REACT_APP_BACKEND_URL}/api/v1/users/login`,
+      url: `${process.env.REACT_APP_BACKEND_URL}/login`,
       data: {
         email,
         password,
@@ -58,7 +58,7 @@ export class AuthService {
   signup(data: { email: string; firstname: string; lastname: string; password: string; code: string }): Promise<User> {
     return axios({
       method: 'post',
-      url: `${process.env.REACT_APP_BACKEND_URL}/api/v1/users`,
+      url: `${process.env.REACT_APP_BACKEND_URL}/users`,
       data,
     }).then((res: AxiosResponse<any>) => {
       this.updateLocalUser({
