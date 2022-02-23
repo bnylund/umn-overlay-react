@@ -1,24 +1,38 @@
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import React, { useEffect } from 'react'
-import { Match } from './scenes'
-import style from './overlay.module.scss'
+
+import { Match, Postgame } from './scenes'
 import { useServices } from './hooks/services'
 
 export const Overlay: React.FC<any> = (props: any) => {
   const { auth, websocket, events } = useServices()
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [refresh, setRefresh] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
     if (!websocket.loggedIn) {
       if (!websocket.io || !websocket.io.connected) {
-        websocket.connect('http://localhost:5555', { autoConnect: false })
+        websocket.connect('http://localhost:9000', {
+          autoConnect: false,
+          transports: ['websocket'],
+          upgrade: false,
+        })
         websocket.io.once('connect', () => {
           websocket
             .login()
-            .then((inf) => {})
+            .then((inf) => {
+              console.log('Connected!', inf)
+              websocket.io.emit('get match info', (match: any, err?: Error) => {
+                if (!err) {
+                  websocket.match = match
+                  setLoggedIn(true)
+                }
+              })
+            })
             .catch((err: Error) => {
               console.log(err)
-              navigate('/login', { replace: true })
+              //navigate('/login', { replace: true })
               if (err.message === 'Auth failure') {
               }
             })
@@ -31,20 +45,23 @@ export const Overlay: React.FC<any> = (props: any) => {
           .catch((err) => {
             console.log(err)
             if (err.message === 'Auth failure') {
-              navigate('/login', { replace: true })
+              //navigate('/login', { replace: true })
             }
           })
       }
     }
-  })
+  }, [refresh])
 
-  if (!auth.getToken() /* || auth.getToken().length === 0*/) {
+  /*if (!auth.getToken()) {
     navigate('/login', { replace: true })
-  }
+  }*/
+
+  //if (!websocket.loggedIn) return null
 
   return (
-    <div className={style.overlay}>
+    <div>
       <Match />
+      <Postgame />
     </div>
   )
 }

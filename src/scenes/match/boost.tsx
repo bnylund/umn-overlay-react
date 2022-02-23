@@ -3,33 +3,27 @@ import { useWebsocket } from '../../hooks/services'
 import { Base, RocketLeague } from '../../types'
 import style from './match.module.scss'
 
-const findTarget = (game: RocketLeague.Game) => {
-  let target = { team: game.teams[0], player: game.teams[0].players.find((x) => x.id === game.target) }
-  if (!target.player) target = { team: game.teams[1], player: game.teams[1].players.find((x) => x.id === game.target) }
-  return target
-}
-
 export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number; radius?: number }) => {
   const ws = useWebsocket()
   const [match, setMatch] = useState<Base.Match>(ws.match)
   const [refresh, setRefresh] = useState(false)
 
-  if (!match.game) return <></>
+  if (!match.game) return null
 
   useEffect(() => {
     const updateState = (state: Base.Match) => {
       setMatch(state)
     }
 
-    ws.io.on('match:update_state', updateState)
+    ws.io.on('update state', updateState)
 
     return () => {
-      ws.io.off('match:update_state', updateState)
+      ws.io.off('update state', updateState)
     }
   }, [refresh])
 
   const { player, team } = findTarget(match.game)
-  if (!player) return <></>
+  if (!player || match.game.isReplay) return null
 
   const stroke = props.stroke ?? 15
   const radius = props.radius ?? 140
@@ -49,9 +43,9 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
         <circle
           id="match-backring"
           stroke="#000000aa"
-          stroke-dasharray={`${circumference} ${circumference}`}
+          strokeDasharray={`${circumference} ${circumference}`}
           style={{ strokeDashoffset: '0' }}
-          stroke-width={stroke}
+          strokeWidth={stroke}
           fill="transparent"
           r={normalizedRadius}
           cx={radius}
@@ -60,9 +54,9 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
         <circle
           id="match-ring"
           stroke={team.colors.secondary}
-          stroke-dasharray={`${circumference} ${circumference}`}
+          strokeDasharray={`${circumference} ${circumference}`}
           style={{ strokeDashoffset: ((100 - player.boost) / 100) * circumference }}
-          stroke-width={stroke}
+          strokeWidth={stroke}
           fill="transparent"
           r={normalizedRadius}
           cx={radius}
@@ -79,10 +73,10 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
           id="boost-amount"
           x="50%"
           y="50%"
-          text-anchor="middle"
+          textAnchor="middle"
           fill={team.colors.secondary}
-          font-size="75px"
-          font-family="Arial"
+          fontSize="75px"
+          fontFamily="Arial"
           style={{ textShadow: '1px 1px 10px black' }}
           dy=".3em"
         >
@@ -91,4 +85,11 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
       </svg>
     </div>
   )
+}
+
+const findTarget = (game: RocketLeague.Game) => {
+  let target = { team: game.teams[0], player: game.teams[0].players.find((x: any) => x.id === game.target) }
+  if (!target.player)
+    target = { team: game.teams[1], player: game.teams[1].players.find((x: any) => x.id === game.target) }
+  return target
 }

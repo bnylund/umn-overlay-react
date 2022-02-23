@@ -5,11 +5,13 @@ import { render } from 'react-dom'
 
 // Project dependencies
 import { AuthService, WebsocketService } from './services'
+import { ServiceContext } from './ServiceContext'
 import { Login, NotFound } from './pages'
 import { Overlay } from './overlay'
+import transition from './assets/transition.webm'
 import reportWebVitals from './reportWebVitals'
 import './index.scss'
-import { ServiceContext } from './ServiceContext'
+import 'animate.css'
 
 // Separate event bus passed into scenes to handle onSceneShow, onSceneHide, etc
 const events: EventEmitter = new EventEmitter()
@@ -22,6 +24,22 @@ const services = {
   auth,
   websocket,
   events,
+  transition: (cb: () => void) => {
+    const elm = document.querySelector<HTMLVideoElement>('#overlay-transition')
+    if (!elm) {
+      cb()
+      return
+    }
+
+    // Set z-index so we can right click + inspect without it going straight to the video element
+    elm.style.zIndex = '99'
+    elm.play().then((val) => {
+      setTimeout(cb, (elm.duration * 1000) / 2)
+      setTimeout(() => {
+        elm.style.zIndex = '-5'
+      }, elm.duration * 1000)
+    })
+  },
 }
 
 render(
@@ -35,6 +53,9 @@ render(
             <Route path="*" element={<NotFound />} />
           </Routes>
         </ServiceContext.Provider>
+        <video width="1920" height="1080" muted={true} id="overlay-transition">
+          <source src={transition} type="video/webm" />
+        </video>
       </div>
     </Router>
   </StrictMode>,

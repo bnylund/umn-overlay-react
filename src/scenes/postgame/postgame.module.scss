@@ -1,0 +1,252 @@
+
+@keyframes :global(pause-scroll) {
+  100% {background-position: 5000px 0px;}
+}
+
+.postgame {
+  display: flex;
+  min-width: 100vw;
+  min-height: 100vh;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  transition: background 2s ease;
+  background: url(../../assets/hexagon.svg), 
+      linear-gradient(0deg, rgb(0, 0, 0) 0%, #44010e 20%, #7a0019 50%, #ad0023 90%, #fc3 100%, #fc3 100%);
+
+  :global {
+    animation: 150s pause-scroll infinite linear;
+  }
+
+  .top {
+    height: 9.6%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+
+    .team {
+      width: 620px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      color: #fff;
+      text-shadow: 1px 1px 10px black;
+      justify-content: center;
+      align-items: center;
+  
+      p {
+        font-size: 56px;
+        font-family: 'Staatliches';
+        text-transform: uppercase;
+        margin: 0;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        word-wrap: break-word;
+      }
+
+      .series {
+        height: 10px;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: row;
+
+        & > div {
+          width: 40px;
+          height: 7px;
+
+          &[data-active="true"] {
+            background-color: yellow;
+            box-shadow: 0 0 5px 2px yellow;
+            margin-right: 15px;
+          }
+
+          &:not([data-active="true"]) {
+            margin-right: 15px;
+            background-color: rgb(126, 98, 6);
+            box-shadow: 0px 0px 15px rgb(212, 163, 3) inset;
+          }
+        }
+      }
+    }
+
+    .overview {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      width: 640px;
+
+      img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        filter: drop-shadow(2px 4px 6px black);
+      }
+
+      p {
+        font-size: 68px;
+        font-weight: bolder;
+        color: #fff;
+        margin-left: 20px;
+        margin-right: 20px;
+        text-shadow: 1px 1px 15px black;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        word-wrap: break-word;
+      }
+    }
+  }
+
+  .middle {
+    height: 650px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+
+    .players {
+      width: 710px;
+      height: 100%;
+
+      .table {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        height: 600px;
+
+        .statsCol {
+          display: flex;
+          flex-direction: column;
+          flex-wrap: nowrap;
+          justify-content: space-evenly;
+          min-width: 150px;
+          height: 100%;
+          align-items: center;
+      
+          p {
+            font-family: 'Staatliches';
+            margin: 0;
+            font-size: 48px;
+            text-shadow: 1px 1px 10px black;
+          }
+      
+          div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            //background-color: #7a0018;
+            //background: linear-gradient(to right, #fc3 0%, #7a0018 10%,#7a0018 90%, #fc3 100%);
+            //box-shadow: 0 0 5px 5px inset #fc3;
+            //color: #fc3;
+            width: 100%;
+            height: 100%;
+          }
+        }
+      }
+
+      .nameRow {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+        height: 50px;
+        justify-content: center;
+
+        * {
+          margin: 0;
+          font-family: 'Staatliches';
+          font-size: 24px;
+        }
+
+        & > div {
+          background: url(../../assets/playername.svg);
+          background-size: cover;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: #fc3;
+          width: 182px;
+          height: 50px;
+        }
+
+        p {
+          max-width: 140px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
+        & > div:first-child {
+          margin-left: 20px;
+        }
+
+        & > div:not(:first-child) {
+          margin-left: -31px;
+        }
+      }
+    }
+
+    .stats {
+      font-family: 'Staatliches';
+      color: #fff;
+      font-size: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      height: 100%;
+      margin-top: 55px;
+      width: 640px;
+      
+      div {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+
+        hr {
+          width: 30%;
+          height: 10px;
+          background-color: #fff;
+          filter: drop-shadow(1px 1px 5px black);
+        }
+      }
+
+      p {
+        margin: 0;
+        text-shadow: 1px 1px 10px black;
+      }
+    }
+  }
+
+  .bottom {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-top: 60px;
+
+    img {
+      height: 80px;
+      object-fit: contain;
+      width: 80px;
+    }
+  }
+}

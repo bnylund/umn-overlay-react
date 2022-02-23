@@ -6,6 +6,7 @@ export interface Services {
   auth: AuthService | null
   websocket: WebsocketService | null
   events: EventEmitter | null
+  transition: ((cb: () => void) => void) | null
 }
 
-export const ServiceContext = createContext<Services>({ auth: null, websocket: null, events: null })
+export const ServiceContext = createContext<Services>({ auth: null, websocket: null, events: null, transition: null })

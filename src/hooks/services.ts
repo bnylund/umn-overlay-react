@@ -15,10 +15,15 @@ export const useEvents = () => {
   return useContext(ServiceContext).events as EventEmitter
 }
 
+export const useTransition = () => {
+  return useContext(ServiceContext).transition as (cb: () => void) => void
+}
+
 export const useServices = () => {
   return useContext(ServiceContext) as {
     websocket: WebsocketService
     auth: AuthService
     events: EventEmitter
+    transition: (cb: () => void) => void
   }
 }
