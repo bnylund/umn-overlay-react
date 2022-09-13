@@ -1,7 +1,12 @@
 import style from './match.module.scss'
 
 export const PlayerCams: React.FC<any> = (props: {
-  cams: { url: string; color: string; team: number }[]
+  cams: {
+    vdo_id: string
+    color: string
+    team: number
+    platform_id: string
+  }[]
   show: boolean
 }) => {
   const { cams, show } = props
@@ -12,12 +17,17 @@ export const PlayerCams: React.FC<any> = (props: {
           if (val.team !== 0) return null
           return (
             <div
-              key={`cam-${val.url}-${val.team}-${index}`}
+              key={`cam-${val.vdo_id}-${val.team}-${index}`}
               style={{
                 borderColor: val.color,
               }}
             >
-              <iframe height="153" width="272" src={val.url} allow="autoplay" />
+              <iframe
+                height="153"
+                width="272"
+                src={`https://vdo.ninja/?view=${val.vdo_id}&cleanoutput&autostart&transparent&noheader&deafen`}
+                allow="autoplay"
+              />
             </div>
           )
         })}
@@ -27,12 +37,17 @@ export const PlayerCams: React.FC<any> = (props: {
           if (val.team !== 1) return null
           return (
             <div
-              key={`cam-${val.url}-${val.team}-${index}`}
+              key={`cam-${val.vdo_id}-${val.team}-${index}`}
               style={{
                 borderColor: val.color,
               }}
             >
-              <iframe height="153" width="272" src={val.url} allow="autoplay" />
+              <iframe
+                height="153"
+                width="272"
+                src={`https://vdo.ninja/?view=${val.vdo_id}&cleanoutput&autostart&transparent&noheader&deafen`}
+                allow="autoplay"
+              />
             </div>
           )
         })}

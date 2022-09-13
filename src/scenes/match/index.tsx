@@ -73,9 +73,8 @@ export const Match = (props: any) => {
         cams: [
           {
             color: 'String',
-            url: 'String',
+            vdo_id: 'String',
             team: 'Number',
-            name: 'String',
             platform_id: 'String',
           },
         ],

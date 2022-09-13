@@ -6,10 +6,10 @@ import style from './match.module.scss'
 export const Player: React.FC<any> = (props: {
   showCam: boolean
   cams: {
-    url: string
+    vdo_id: string
     color: string
     team: number
-    name: string
+    platform_id: string
   }[]
 }) => {
   const ws = useWebsocket()
@@ -46,14 +46,19 @@ export const Player: React.FC<any> = (props: {
       {props.cams.map((val, index) => {
         return (
           <div
-            key={`playercam-${val.name}`}
+            key={`playercam-${val.platform_id}-${val.vdo_id}`}
             className={style.playerCam}
             style={{
-              display: val.name.toLowerCase() === player.name.toLowerCase() && props.showCam ? 'initial' : 'none',
+              display: val.platform_id === player.primaryID && props.showCam ? 'initial' : 'none',
             }}
           >
             <div style={{ borderColor: team.info ? team.info.colors.primary : '#444444' }}>
-              <iframe width="368" height="207" src={val.url} allow="autoplay"></iframe>
+              <iframe
+                width="368"
+                height="207"
+                src={`https://vdo.ninja/?view=${val.vdo_id}&cleanoutput&autostart&transparent&noheader&deafen`}
+                allow="autoplay"
+              ></iframe>
             </div>
           </div>
         )
