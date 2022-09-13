@@ -18,10 +18,9 @@ export const Match = (props: any) => {
 
   const [cams, setCams] = useState<
     {
-      url: string
+      vdo_id: string
       color: string
       team: number
-      name: string
       platform_id: string
     }[]
   >([
@@ -151,7 +150,14 @@ export const Match = (props: any) => {
   return (
     <div className={style.match}>
       {cams.map((val, index) => {
-        return <link key={`preload-${val.name}-${val.url}`} rel="preload" href={val.url} as="document" />
+        return (
+          <link
+            key={`preload-${`https://vdo.ninja/?view=${val.vdo_id}&cleanoutput&autostart&transparent&noheader&deafen`}`}
+            rel="preload"
+            href={`https://vdo.ninja/?view=${val.vdo_id}&cleanoutput&autostart&transparent&noheader&deafen`}
+            as="document"
+          />
+        )
       })}
       {match.game
         ? match.game.teams.map((val) => {
