@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { EventEmitter } from 'events'
-import { StrictMode, createContext } from 'react'
+import { StrictMode } from 'react'
 import { render } from 'react-dom'
 
 // Project dependencies
-import { AuthService, WebsocketService } from './services'
+import { WebsocketService } from './services'
 import { ServiceContext } from './ServiceContext'
 import { Login, NotFound } from './pages'
 import { Overlay } from './overlay'
@@ -17,11 +17,9 @@ import 'animate.css'
 const events: EventEmitter = new EventEmitter()
 
 // Keep services outside of render so they don't get initialized more than once
-const auth: AuthService = new AuthService()
-const websocket: WebsocketService = new WebsocketService(auth, events)
+const websocket: WebsocketService = new WebsocketService(events)
 
 const services = {
-  auth,
   websocket,
   events,
   transition: (cb: () => void) => {

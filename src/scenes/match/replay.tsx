@@ -40,12 +40,12 @@ export const Replay: React.FC<any> = (props: any) => {
       }
     }
 
-    ws.io.on('update state', updateState)
-    ws.io.on('game event', gameEvent)
+    ws.io.on('match:update_state', updateState)
+    ws.io.on('game:event', gameEvent)
 
     return () => {
-      ws.io.off('update state', updateState)
-      ws.io.off('game event', gameEvent)
+      ws.io.off('match:update_state', updateState)
+      ws.io.off('game:event', gameEvent)
     }
   }, [refresh])
 
@@ -55,11 +55,14 @@ export const Replay: React.FC<any> = (props: any) => {
   return (
     <div
       className={style.replay}
-      style={{ backgroundColor: `${team.colors.primary}99`, color: team.colors.secondary }}
+      style={{
+        backgroundColor: `${team.info ? team.info.colors.primary : '#444444'}99`,
+        color: team.info ? team.info.colors.secondary : '#ffffff',
+      }}
       data-show={show ? 'true' : 'false'}
     >
       <div className={style.tab}>
-        <div style={{ backgroundColor: `${team.colors.primary}99` }}>
+        <div style={{ backgroundColor: `${team.info ? team.info.colors.primary : '#444444'}99` }}>
           <p>GOAL</p>
         </div>
         <div>{goal ? <p>{goal.scorer.name}</p> : null}</div>
@@ -71,7 +74,7 @@ export const Replay: React.FC<any> = (props: any) => {
         <p>REPLAY</p>
       </div>
       <div className={style.tab} data-show={assister.length === 0 ? 'false' : 'true'}>
-        <div style={{ backgroundColor: `${team.colors.primary}99` }}>
+        <div style={{ backgroundColor: `${team.info ? team.info.colors.primary : '#444444'}99` }}>
           <p>ASSIST</p>
         </div>
         <div>

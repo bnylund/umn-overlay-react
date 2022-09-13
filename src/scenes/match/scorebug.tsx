@@ -4,18 +4,38 @@ import { Base } from '../../types'
 import { GoalScored } from './goal'
 import style from './match.module.scss'
 
-export const Scorebug: React.FC<any> = () => {
+export const Scorebug: React.FC<any> = (props: { show: boolean }) => {
   const ws = useWebsocket()
   const [match, setMatch] = useState<Base.Match>(ws.match)
   const [goalspeed, setGoalspeed] = useState(0)
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(props.show)
   const [goal, setGoal] = useState(-1)
   const [showGoal, setShowGoal] = useState(false)
   const [refresh, setRefresh] = useState(false)
+  const [clock, setClock] = useState('5:00')
 
   useEffect(() => {
     const updateState = (state: Base.Match) => {
       setMatch(state)
+      if (state.game) {
+        const c = getClockDisplay(state.game.time, state.game.isOT)
+
+        if (state.game.isOT && state.game.time === 0) {
+          setClock('+0:00')
+          return
+        }
+
+        if (c) {
+          if (!state.game.isOT && state.game.time < 61 && c.includes('0:')) return
+
+          if (c === '0:0') return
+
+          if (state.game.isOT && !c.includes('+')) return
+
+          //console.log(c)
+          setClock(c)
+        }
+      }
     }
 
     const gameEvent = (event: { event: string; data: any }) => {
@@ -29,15 +49,17 @@ export const Scorebug: React.FC<any> = () => {
             setGoal(0)
           }, 2000)
         }, 3000)
-      } else if (event.event === 'game:initialized') {
+      } else if (event.event === 'game:clock_started') {
         setShow(true)
       } else if (event.event === 'game:match_ended') {
+        setShow(false)
+      } else if (event.event === 'game:match_destroyed') {
         setShow(false)
       }
     }
 
-    ws.io.on('update state', updateState)
-    ws.io.on('game event', gameEvent)
+    ws.io.on('match:update_state', updateState)
+    ws.io.on('game:event', gameEvent)
 
     /*setTimeout(() => {
       setGoal(1)
@@ -48,8 +70,8 @@ export const Scorebug: React.FC<any> = () => {
     }, 3000)*/
 
     return () => {
-      ws.io.off('update state', updateState)
-      ws.io.off('game event', gameEvent)
+      ws.io.off('match:update_state', updateState)
+      ws.io.off('game:event', gameEvent)
     }
   }, [refresh])
 
@@ -58,17 +80,17 @@ export const Scorebug: React.FC<any> = () => {
   return (
     <div key="match-scorebug" className={style.scorebug} data-show={show ? 'true' : 'false'}>
       <div className={style.clock} data-show={show}>
-        <p>{getClockDisplay(match.game.time) ?? ''}</p>
+        <p>{clock}</p>
       </div>
       <div className={style.teams}>
         <div className={style.team} data-goal={showGoal ? '1' : '0'}>
           <div
             style={{
-              backgroundColor: match.game.teams[0].colors.primary,
-              color: match.game.teams[0].colors.secondary,
+              backgroundColor: match.game.teams[0].info ? match.game.teams[0].info.colors.primary : '#444444',
+              color: match.game.teams[0].info ? match.game.teams[0].info.colors.secondary : '#ffffff',
             }}
           >
-            <p>{match.game.teams[0].name}</p>
+            <p>{match.game.teams[0].info ? match.game.teams[0].info.name : `HOME TEAM`}</p>
             <div className={style.series}>
               {new Array(Math.ceil(match.bestOf / 2)).fill(0).map((val, index) => {
                 return (
@@ -86,8 +108,8 @@ export const Scorebug: React.FC<any> = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: match.game.teams[0].colors.secondary,
-              color: match.game.teams[0].colors.primary,
+              backgroundColor: match.game.teams[0].info ? match.game.teams[0].info.colors.secondary : '#ffffff',
+              color: match.game.teams[0].info ? match.game.teams[0].info.colors.primary : '#444444',
             }}
           >
             <p style={{ margin: 0, padding: 0, fontSize: '54px', fontWeight: 'bolder', zIndex: '9' }}>
@@ -98,11 +120,11 @@ export const Scorebug: React.FC<any> = () => {
         <div className={style.team} data-goal={showGoal ? '2' : '0'}>
           <div
             style={{
-              backgroundColor: match.game.teams[1].colors.primary,
-              color: match.game.teams[1].colors.secondary,
+              backgroundColor: match.game.teams[1].info ? match.game.teams[1].info.colors.primary : '#444444',
+              color: match.game.teams[1].info ? match.game.teams[1].info.colors.secondary : '#ffffff',
             }}
           >
-            <p>{match.game.teams[1].name}</p>
+            <p>{match.game.teams[1].info ? match.game.teams[1].info.name : `AWAY TEAM`}</p>
             <div className={style.series}>
               {new Array(Math.ceil(match.bestOf / 2)).fill(0).map((val, index) => {
                 return (
@@ -120,8 +142,8 @@ export const Scorebug: React.FC<any> = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: match.game.teams[1].colors.secondary,
-              color: match.game.teams[1].colors.primary,
+              backgroundColor: match.game.teams[1].info ? match.game.teams[1].info.colors.secondary : '#ffffff',
+              color: match.game.teams[1].info ? match.game.teams[1].info.colors.primary : '#444444',
             }}
           >
             <p style={{ margin: 0, padding: 0, fontSize: '54px', fontWeight: 'bolder', zIndex: '9' }}>
@@ -149,17 +171,17 @@ function secondsToTime(seconds: number, showMs: boolean, isOT = false) {
 }
 
 function getClockDisplay(time?: number, isOT: boolean = false) {
-  if (!time) return '5:00'
+  if (!time) return undefined
 
   var nonOTfull = Math.ceil(time) // Rocket League time rounds up, round game time up
 
   // Non Overtime less than a minute to display ms in RL time format
-  if (nonOTfull < 61 && isOT == false && String(time).includes('.') === true) {
+  if (nonOTfull < 61 && !isOT && String(time).includes('.') === true) {
     return secondsToTime(time, true)
   }
 
   // Overtime
-  else if (isOT == true && String(time).includes('.') === true) {
+  else if (isOT && String(time).includes('.') === true) {
     return '+' + secondsToTime(nonOTfull, false, true)
   } else if (isOT && time === 0) {
     return '+0:00'

@@ -6,10 +6,7 @@ export namespace Base {
   }
 
   export interface Team {
-    roster: string[]
-    colors: Base.Colors
-    name: string
-    avatar: string
+    info?: any
     score: number
     series: number
     [key: string]: any
@@ -23,11 +20,9 @@ export namespace Base {
   export interface Match {
     game?: RocketLeague.Game
     bestOf: number
-    teamSize: number
     hasWinner: boolean
     winner: number
-    id: string
-    stats_id: string
+    group_id: string
     [key: string]: any
   }
 

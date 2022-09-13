@@ -23,19 +23,25 @@ export const Player: React.FC<any> = (props: {
       setMatch(state)
     }
 
-    ws.io.on('update state', updateState)
+    ws.io.on('match:update_state', updateState)
 
     return () => {
-      ws.io.off('update state', updateState)
+      ws.io.off('match:update_state', updateState)
     }
   }, [refresh])
 
   // Don't do any transitions if no target is found.
   const { player, team } = findTarget(match.game)
-  if (!player || match.game.isReplay) return null
+  if (!player || match.game.isReplay || match.game.hasWinner) return null
 
   return (
-    <div className={style.player} style={{ backgroundColor: team.colors.primary, color: team.colors.secondary }}>
+    <div
+      className={style.player}
+      style={{
+        backgroundColor: team.info ? team.info.colors.primary : '#444444',
+        color: team.info ? team.info.colors.secondary : '#ffffff',
+      }}
+    >
       <p>{player.name}</p>
       {props.cams.map((val, index) => {
         return (
@@ -46,7 +52,7 @@ export const Player: React.FC<any> = (props: {
               display: val.name.toLowerCase() === player.name.toLowerCase() && props.showCam ? 'initial' : 'none',
             }}
           >
-            <div style={{ borderColor: team.colors.primary }}>
+            <div style={{ borderColor: team.info ? team.info.colors.primary : '#444444' }}>
               <iframe width="368" height="207" src={val.url} allow="autoplay"></iframe>
             </div>
           </div>
@@ -54,14 +60,20 @@ export const Player: React.FC<any> = (props: {
       })}
 
       <div style={{ zIndex: '10', position: 'relative' }}>
-        <div className={style.tags} style={{ color: team.colors.primary, backgroundColor: team.colors.secondary }}>
+        <div
+          className={style.tags}
+          style={{
+            color: team.info ? team.info.colors.primary : '#444444',
+            backgroundColor: team.info ? team.info.colors.secondary : '#ffffff',
+          }}
+        >
           <p>GOALS</p>
           <p>ASSISTS</p>
           <p>SAVES</p>
           <p>SHOTS</p>
           <p>SCORE</p>
         </div>
-        <div className={style.stats} style={{ backgroundColor: team.colors.primary }}>
+        <div className={style.stats} style={{ backgroundColor: team.info ? team.info.colors.primary : '#444444' }}>
           <p>{player.goals}</p>
           <p>{player.assists}</p>
           <p>{player.saves}</p>

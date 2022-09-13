@@ -1,14 +1,10 @@
 import { EventEmitter } from 'events'
 import { useContext } from 'react'
 import { ServiceContext } from '../ServiceContext'
-import { AuthService, WebsocketService } from '../services'
+import { WebsocketService } from '../services'
 
 export const useWebsocket = () => {
   return useContext(ServiceContext).websocket as WebsocketService
-}
-
-export const useAuth = () => {
-  return useContext(ServiceContext).auth as AuthService
 }
 
 export const useEvents = () => {
@@ -22,7 +18,6 @@ export const useTransition = () => {
 export const useServices = () => {
   return useContext(ServiceContext) as {
     websocket: WebsocketService
-    auth: AuthService
     events: EventEmitter
     transition: (cb: () => void) => void
   }

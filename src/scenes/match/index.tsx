@@ -22,74 +22,30 @@ export const Match = (props: any) => {
       color: string
       team: number
       name: string
+      platform_id: string
     }[]
   >([
     /*{
       url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
       color: '#7a0019',
       team: 0,
-      name: 'chez',
+      name: 'Imp',
+      platform_id: '76561198247336622',
     },
     {
       url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
       color: '#7a0019',
       team: 0,
-      name: 'Bismo',
-    },
-    {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 0,
-      name: 'Mom',
-    },
-    {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 1,
-      name: 'Lege',
-    },
-    {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 1,
-      name: 'Rad',
-    },*/
-    {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 0,
-      name: 'Saltie',
-    },
-    {
-      url: 'https://vdo.ninja/?view=CfhMrq3&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 0,
-      name: 'Mom',
-    },
-    {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 0,
-      name: 'Merlin',
-    },
-    {
-      url: 'https://vdo.ninja/?view=CfhMrq3&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 1,
       name: 'Boomer',
+      platform_id: '76561198247336622',
     },
     {
       url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
       color: '#7a0019',
-      team: 1,
-      name: 'C-Block',
-    },
-    {
-      url: 'https://vdo.ninja/?view=CfhMrq3&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 1,
-      name: 'Tex',
-    },
+      team: 0,
+      name: 'Poncho',
+      platform_id: '76561198247336622',
+    },*/
   ])
   // https://vdo.ninja/?push=g2aAY29
   const [camMode, setCamMode] = useState(2) // -1: Disabled, 0: Hidden, 1: All, 2: Player
@@ -101,6 +57,7 @@ export const Match = (props: any) => {
         if (transition_) {
           transition(() => {
             setShow(state)
+            events.emit('scene:visibility', 'Postgame', false, false)
           })
         } else {
           setShow(state)
@@ -115,15 +72,16 @@ export const Match = (props: any) => {
       data: {
         cams: [
           {
-            color: 'string',
-            url: 'string',
-            team: 'number',
-            name: 'string',
+            color: 'String',
+            url: 'String',
+            team: 'Number',
+            name: 'String',
+            platform_id: 'String',
           },
         ],
       },
       buttons: [
-        {
+        /*{
           name: 'Show Player Cameras',
           handler: () => {
             setCamMode(1)
@@ -140,10 +98,11 @@ export const Match = (props: any) => {
           handler: () => {
             setCamMode(-1)
           },
-        },
+        },*/
       ],
       // Data from CB comes in here
       handler: (data: any) => {
+        console.log('got data: ', data)
         setCams(data.cams)
       },
     })
@@ -153,24 +112,37 @@ export const Match = (props: any) => {
     }, 1000)*/
 
     const updateState = (state: Base.Match) => {
+      //console.log(state)
       setMatch(state)
+      match.game = state.game
+    }
+
+    const hide = (delay: number) => {
+      setTimeout(() => {
+        sceneVisibility('Match', false, false)
+      }, delay)
     }
 
     const gameEvent = (event: { event: string; data: any }) => {
+      //console.log(event)
       const { event: ev, data } = event
       if (ev === 'game:goal_scored') {
         if (camMode !== -1) setCamMode(1)
       } else if (ev === 'game:replay_end') {
         if (camMode !== -1) setCamMode(2)
+      } else if (ev === 'game:initialized') {
+        sceneVisibility('Match', true, true)
+      } else if (ev === 'game:match_destroyed') {
+        hide(0)
       }
     }
 
-    websocket.io.on('update state', updateState)
-    websocket.io.on('game event', gameEvent)
+    websocket.io.on('match:update_state', updateState)
+    websocket.io.on('game:event', gameEvent)
 
     return () => {
-      websocket.io.off('update state', updateState)
-      websocket.io.off('game event', gameEvent)
+      websocket.io.off('match:update_state', updateState)
+      websocket.io.off('game:event', gameEvent)
       events.off('scene:visibility', sceneVisibility)
     }
   }, [refresh])
@@ -180,8 +152,14 @@ export const Match = (props: any) => {
   return (
     <div className={style.match}>
       {cams.map((val, index) => {
-        return <link key={`preload-${val.name}`} rel="preload" href={val.url} as="document" />
+        return <link key={`preload-${val.name}-${val.url}`} rel="preload" href={val.url} as="document" />
       })}
+      {match.game
+        ? match.game.teams.map((val) => {
+            if (!val.info) return null
+            return <link key={`preload-teamav-${val.info._id}`} rel="preload" href={val.info.avatar} as="image" />
+          })
+        : null}
       <Scorebug />
       <Boost />
       <Statfeed />

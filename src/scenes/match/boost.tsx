@@ -15,15 +15,15 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
       setMatch(state)
     }
 
-    ws.io.on('update state', updateState)
+    ws.io.on('match:update_state', updateState)
 
     return () => {
-      ws.io.off('update state', updateState)
+      ws.io.off('match:update_state', updateState)
     }
   }, [refresh])
 
   const { player, team } = findTarget(match.game)
-  if (!player || match.game.isReplay) return null
+  if (!player || match.game.isReplay || match.game.hasWinner) return null
 
   const stroke = props.stroke ?? 15
   const radius = props.radius ?? 140
@@ -33,11 +33,11 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
     <div className={style.boost}>
       <svg height={radius * 2} width={radius * 2}>
         <image
-          href={team.avatar}
-          height={radius + 60}
-          width={radius + 60}
-          x={(radius - 60) / 2}
-          y={(radius - 60) / 2}
+          href={team.info ? team.info.avatar : ''}
+          height={radius + 30}
+          width={radius + 30}
+          x={(radius - 30) / 2}
+          y={(radius - 30) / 2}
           style={{ opacity: '0.2', objectFit: 'contain' }}
         />
         <circle
@@ -53,7 +53,7 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
         />
         <circle
           id="match-ring"
-          stroke={team.colors.secondary}
+          stroke={team.info ? team.info.colors.secondary : '#ffffff'}
           strokeDasharray={`${circumference} ${circumference}`}
           style={{ strokeDashoffset: ((100 - player.boost) / 100) * circumference }}
           strokeWidth={stroke}
@@ -67,14 +67,14 @@ export const Boost: React.FC<any> = (props: { stroke?: number; progress?: number
           cx="50%"
           cy="50%"
           r={normalizedRadius - stroke / 2}
-          fill={`${team.colors.primary}99`}
+          fill={`${team.info ? team.info.colors.primary : '#444444'}99`}
         />
         <text
           id="boost-amount"
           x="50%"
           y="50%"
           textAnchor="middle"
-          fill={team.colors.secondary}
+          fill={team.info ? team.info.colors.secondary : '#ffffff'}
           fontSize="75px"
           fontFamily="Arial"
           style={{ textShadow: '1px 1px 10px black' }}

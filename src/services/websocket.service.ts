@@ -2,69 +2,91 @@ import { io, ManagerOptions, Socket, SocketOptions } from 'socket.io-client'
 import EventEmitter from 'events'
 
 // Project Dependencies
-import { AuthService } from './auth.service'
 import { Base } from '../types/Live'
 
 export class WebsocketService {
   io: Socket
+  controller?: WebSocket
   loggedIn: boolean = false
 
   // We will store a local match state for scenes to use
-  match: Base.Match =
-    process.env.NODE_ENV === 'development'
+  match: Base.Match = /*process.env.NODE_ENV === 'development'
       ? test_match
-      : {
-          bestOf: 5,
-          teamSize: 3,
-          hasWinner: false,
-          winner: -1,
-          id: '',
-          stats_id: '',
-        }
+      : */ {
+    bestOf: 5,
+    hasWinner: false,
+    winner: -1,
+    group_id: '',
+  }
 
-  constructor(
-    private auth: AuthService,
-    private events: EventEmitter,
-    server?: string,
-    opts?: Partial<ManagerOptions & SocketOptions>,
-  ) {
+  constructor(private events: EventEmitter, server?: string, opts?: Partial<ManagerOptions & SocketOptions>) {
     this.io = io({
       autoConnect: false,
     })
+    this.controller = new WebSocket('ws://localhost:24158')
+
+    this.controller.onopen = (ev) => {
+      console.log('Connected to controller!')
+
+      if (window.obsstudio) {
+        setInterval(() => {
+          window.obsstudio.getStatus((status) => {
+            window.obsstudio.getCurrentScene((scene) => {
+              if (this.controller) {
+                this.controller.send(
+                  `UPDATE ${JSON.stringify({
+                    obsBrowserVersion: window.obsstudio.pluginVersion,
+                    status: status.streaming ? 'Streaming' : 'Not Streaming',
+                    scene,
+                  })}`,
+                )
+              }
+            })
+          })
+        }, 250)
+      }
+    }
+
+    // Parse connect messages
+    this.controller.onmessage = (ev) => {
+      if (ev.data.startsWith('CONNECT ')) {
+        const target = ev.data.substring(8)
+        console.log('Connecting to ' + target)
+        this.connect(target, opts ? { transports: ['websocket'], ...opts } : { transports: ['websocket'] })
+        this.io.once('connect', () => {
+          this.login(true, 'UMN Overlay')
+            .then((val) => {
+              console.log('Logged in')
+            })
+            .catch((err) => {})
+        })
+        this.io.once('logged_in', () => {
+          this.loggedIn = true
+        })
+      }
+    }
+
     if (server) {
       this.connect(server, opts)
     }
   }
 
-  // Fix
-  async login() {
-    return new Promise(
-      (
-        resolve: (info: { name: string; version: string; author: string }) => void,
-        reject: (reason?: Error) => void,
-      ) => {
-        if (this.io.connected) {
-          this.io.emit(
-            'login',
-            //this.auth.getToken(),
-            'Vp75jBP',
-            (status: string, info: { name: string; version: string; author: string }) => {
-              if (status !== 'good') {
-                this.loggedIn = false
-                reject(new Error('Auth failure'))
-              }
-              this.events.emit('socket:logged_in')
-              this.loggedIn = true
-              this.registerListeners()
-              resolve(info)
-            },
-          )
+  async login(local: boolean = false, name?: string) {
+    return new Promise((resolve: (path: string) => void, reject: (reason?: Error) => void) => {
+      if (this.io.connected) {
+        if (local) {
+          this.io.emit('login', 'OVERLAY', name)
+          resolve('')
         } else {
-          this.loggedIn = false
-          reject(new Error('Socket not connected'))
+          this.io.emit('login', 'OVERLAY', (path: string) => {
+            resolve(path)
+          })
         }
-      },
-    )
+      } else {
+        this.loggedIn = false
+        reject(new Error('Socket not connected'))
+      }
+    })
   }
 
   connect(server: string, opts?: Partial<ManagerOptions & SocketOptions>) {
@@ -82,7 +104,7 @@ export class WebsocketService {
 
   // put internal listeners here
   registerListeners() {
-    this.io.on('update state', (state: Base.Match) => {
+    this.io.on('match:update_state', (state: Base.Match) => {
       this.match = state
     })
     this.io.on('scene:visibility', (name: string, state: boolean, transition: boolean = false) => {
@@ -95,7 +117,16 @@ export class WebsocketService {
     props?: { data: any; handler: Function; buttons?: { name: string; handler: Function }[] },
   ) {
     if (this.loggedIn) {
-      this.io.emit('scene:register', name, props ? props.data : undefined)
+      this.io.emit(
+        'scene:register',
+        name,
+        props ? props.data : undefined,
+        props && props.buttons
+          ? props.buttons.map((val, index) => {
+              return val.name
+            })
+          : undefined,
+      )
       if (props) {
         this.io.on('scene:update_data', (sceneName: string, data: any) => {
           if (sceneName === name) {
@@ -115,23 +146,14 @@ export class WebsocketService {
 
 const test_match: Base.Match = {
   bestOf: 5,
-  teamSize: 3,
   hasWinner: false,
   winner: -1,
-  id: '',
-  stats_id: '',
+  group_id: '',
   game: {
     winner: -1,
     hasWinner: false,
     teams: [
       {
-        roster: ['chez', 'bismo', 'mom'],
-        colors: {
-          primary: '#7a0019',
-          secondary: '#ffcc33',
-        },
-        name: 'UMN Gold',
-        avatar: 'https://www.dropbox.com/s/oi3axn8oqbnjcsj/umn.png?dl=1',
         score: 3,
         series: 2,
         players: [
@@ -231,13 +253,6 @@ const test_match: Base.Match = {
         ],
       },
       {
-        roster: ['Lege', 'Rad', 'Slip'],
-        colors: {
-          primary: '#7a0019',
-          secondary: '#ffcc33',
-        },
-        name: 'UMN Maroon',
-        avatar: 'https://www.dropbox.com/s/oi3axn8oqbnjcsj/umn.png?dl=1',
         score: 2,
         series: 1,
         players: [

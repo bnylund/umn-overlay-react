@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useServices } from '../../hooks/services'
-import { Base } from '../../types'
+import { Base, RocketLeague } from '../../types'
 import style from './postgame.module.scss'
 import umn from '../../assets/umn.png'
 
@@ -8,11 +8,11 @@ export const Postgame: React.FC<any> = (props: any) => {
   const [show, setShow] = useState(false)
   const { websocket, events, transition } = useServices()
   const [refresh, setRefresh] = useState(false)
-  const [m, setMatch] = useState<Base.Match>(websocket.match)
-  const [match, setMatchSave] = useState<Base.Match>(websocket.match)
+  const [match, setMatchSave] = useState<Base.Match | null>(null)
 
   // Event handlers go in here
   useEffect(() => {
+    setMatchSave(websocket.match)
     const sceneVisibility = (name: string, state: boolean, transition: boolean = false) => {
       if (name === 'Postgame') {
         setShow(state)
@@ -23,15 +23,9 @@ export const Postgame: React.FC<any> = (props: any) => {
 
     websocket.registerScene('Postgame')
 
-    const updateState = (state: Base.Match) => {
-      setMatch(state)
-    }
-
     const gameEvent = (event: { event: string; data: any }) => {
       const { event: ev, data } = event
-      if (ev === 'game:match_ended') {
-        setMatchSave(m)
-      } else if (ev === 'game:podium_start') {
+      if (ev === 'game:podium_start') {
         setTimeout(() => {
           transition(() => {
             setShow(true)
@@ -39,34 +33,31 @@ export const Postgame: React.FC<any> = (props: any) => {
           })
         }, 4500)
       } else if (ev === 'game:pre_countdown_begin') {
-        setShow(false)
+        //setShow(false)
       }
     }
 
-    /*setTimeout(() => {
-      transition(() => {
-        console.log('SWITCH!')
-        setShow(true)
-      })
-    }, 1500)*/
+    const gameEnd = (match: Base.Match, win_team: number) => {
+      setMatchSave(match)
+    }
 
-    websocket.io.on('update state', updateState)
-    websocket.io.on('game event', gameEvent)
+    websocket.io.on('game:event', gameEvent)
+    websocket.io.on('game:ended', gameEnd)
 
     return () => {
-      websocket.io.off('update state', updateState)
-      websocket.io.off('game event', gameEvent)
+      websocket.io.off('game:ended', gameEnd)
+      websocket.io.off('game:event', gameEvent)
       events.off('scene:visibility', sceneVisibility)
     }
   }, [refresh])
 
-  if (!match.game || !show) return null
+  if (!match || !match.game || !show) return null
 
   return (
     <div className={style.postgame}>
       <div className={style.top}>
         <div className={style.team}>
-          <p>{match.game.teams[0].name}</p>
+          <p>{match.game.teams[0].info ? match.game.teams[0].info.name : 'HOME TEAM'}</p>
           <div className={style.series}>
             {new Array(Math.ceil(match.bestOf / 2)).fill(0).map((val, index) => {
               return (
@@ -79,12 +70,12 @@ export const Postgame: React.FC<any> = (props: any) => {
           </div>
         </div>
         <div className={style.overview}>
-          <img src={match.game.teams[0].avatar} />
+          <img src={match.game.teams[0].info ? match.game.teams[0].info.avatar : ''} />
           <p>{`${match.game.teams[0].score} - ${match.game.teams[1].score}`}</p>
-          <img src={match.game.teams[1].avatar} />
+          <img src={match.game.teams[1].info ? match.game.teams[1].info.avatar : ''} />
         </div>
         <div className={style.team}>
-          <p>{match.game.teams[1].name}</p>
+          <p>{match.game.teams[1].info ? match.game.teams[1].info.name : 'AWAY TEAM'}</p>
           <div className={style.series}>
             {new Array(Math.ceil(match.bestOf / 2)).fill(0).map((val, index) => {
               return (
@@ -105,8 +96,11 @@ export const Postgame: React.FC<any> = (props: any) => {
               return (
                 <div
                   style={{
-                    color: team.colors.secondary,
-                    backgroundImage: getPlayerNameBackgroundImage(team.colors.primary, team.colors.secondary),
+                    color: team.info ? team.info.colors.secondary : '#ffffff',
+                    backgroundImage: getPlayerNameBackgroundImage(
+                      team.info ? team.info.colors.primary : '#444444',
+                      team.info ? team.info.colors.secondary : '#ffffff',
+                    ),
                   }}
                   key={`postgame-name-${val.id}`}
                 >
@@ -122,63 +116,63 @@ export const Postgame: React.FC<any> = (props: any) => {
                 <div key={`postgame-stats-${val.id}`} className={style.statsCol}>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.goals}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.assists}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.saves}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.shots}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{((val.shots === 0 ? 0 : val.goals / val.shots) * 100).toFixed(0)}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.demos}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.score}</p>
@@ -232,8 +226,11 @@ export const Postgame: React.FC<any> = (props: any) => {
               return (
                 <div
                   style={{
-                    color: team.colors.secondary,
-                    backgroundImage: getPlayerNameBackgroundImage(team.colors.primary, team.colors.secondary),
+                    color: team.info ? team.info.colors.secondary : '#ffffff',
+                    backgroundImage: getPlayerNameBackgroundImage(
+                      team.info ? team.info.colors.primary : '#444444',
+                      team.info ? team.info.colors.secondary : '#ffffff',
+                    ),
                   }}
                   key={`postgame-name-${val.id}`}
                 >
@@ -249,63 +246,63 @@ export const Postgame: React.FC<any> = (props: any) => {
                 <div key={`postgame-stats-${val.id}`} className={style.statsCol}>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.goals}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.assists}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.saves}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.shots}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{((val.shots === 0 ? 0 : val.goals / val.shots) * 100).toFixed(0)}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.demos}</p>
                   </div>
                   <div
                     style={{
-                      backgroundColor: team.colors.primary,
-                      color: team.colors.secondary,
-                      boxShadow: `0px 0px 3px 5px inset ${team.colors.secondary}`,
+                      backgroundColor: team.info ? team.info.colors.primary : '#444444',
+                      color: team.info ? team.info.colors.secondary : '#ffffff',
+                      boxShadow: `0px 0px 3px 5px inset ${team.info ? team.info.colors.secondary : '#ffffff'}`,
                     }}
                   >
                     <p>{val.score}</p>
@@ -336,7 +333,9 @@ const getPlayerNameBackgroundImage = (primary: string, secondary: string) => {
             <feFuncA type="linear" slope=".9"/>
         </feComponentTransfer>
     </filter></defs>
-      <polygon fill="${secondary}a" stroke="${primary}" points="25,0 150,0 125,50 0,50" filter="url(#inset-shadow)" />
+      <polygon fill="${secondary}${
+    secondary.length === 4 ? 'a' : 'aa'
+  }" stroke="${primary}" points="25,0 150,0 125,50 0,50" filter="url(#inset-shadow)" />
     </svg>
   `
   return `url('data:image/svg+xml;base64,${window.btoa(svg)}')`
