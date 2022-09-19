@@ -28,6 +28,8 @@ export class WebsocketService {
     this.controller.onopen = (ev) => {
       console.log('Connected to controller!')
 
+      this.controller?.send('IAM OVERLAY')
+
       if (window.obsstudio) {
         setInterval(() => {
           window.obsstudio.getStatus((status) => {

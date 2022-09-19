@@ -24,27 +24,18 @@ export const Match = (props: any) => {
       platform_id: string
     }[]
   >([
-    /*{
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
+    {
+      vdo_id: 'g2aAY29',
       color: '#7a0019',
       team: 0,
-      name: 'Imp',
       platform_id: '76561198247336622',
     },
     {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
+      vdo_id: 'eSmK9Av',
       color: '#7a0019',
       team: 0,
-      name: 'Boomer',
-      platform_id: '76561198247336622',
+      platform_id: '76561198091877702',
     },
-    {
-      url: 'https://vdo.ninja/?view=g2aAY29&cleanoutput&autostart&transparent&noheader',
-      color: '#7a0019',
-      team: 0,
-      name: 'Poncho',
-      platform_id: '76561198247336622',
-    },*/
   ])
   // https://vdo.ninja/?push=g2aAY29
   const [camMode, setCamMode] = useState(2) // -1: Disabled, 0: Hidden, 1: All, 2: Player
